@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Learning day by day, progressing day by day!">
+    <meta name="keywords"  content=" LISTONE的博客, LISTONE, listone, python, c, 网络安全">
+    <meta name="theme-color" content="#000000">
+    
+    <title>linux更改用户名以及sudo用户小技巧 - LISTONE的博客 | Listone Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2019/07/15/linux%E6%9B%B4%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E4%BB%A5%E5%8F%8Asudo%E7%94%A8%E6%88%B7%E5%B0%8F%E6%8A%80%E5%B7%A7/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Listone Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-digital-native.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-digital-native.jpg')
+    }
+
+    
+</style>
+<header class="intro-header" >
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#linux" title="linux">linux</a>
+                        
+                        <a class="tag" href="/tags/#Notes" title="Notes">Notes</a>
+                        
+                    </div>
+                    <h1>linux更改用户名以及sudo用户小技巧</h1>
+                    
+                    
+                    <h2 class="subheading">修改linux用户名并修改用户目录名以及sudo用户小技巧</h2>
+                    
+                    <span class="meta">Posted by LISTONE on July 15, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>本文首发于博主公众号LISTONE，欢迎关注哦！</p>
+</blockquote>
+
+<h2 id="前言">前言</h2>
+<p>  <strong>一、</strong> 历时几天，终于下完了一个3.4G大小的一个ubuntu虚拟机压缩包（百度云限速，本人穷，买不起会员。。。），这个虚拟机是前人搭建好的一个pwn做题环境，它的默认名字是他平时的代号，这个就让我很不舒服了，虽然是现成的，但谁不想看着自己的名字不是，所以一气之下，决定删除用户，但是转念一想，他就是在这个用户下配置的环境，我删了，那配的环境不也就没有了，所以我就想着改一下用户名，在这期间有很多要改的地方，如果不小心操作错误，很有可能会无法登录系统，所以我在这里记录一下我的解决方法，免得以后踩坑。。。<br />
+  <strong>二、</strong> 我的主机操作系统被我换成kali了，当初想着root用户不安全，遂建立了一个普通用户，可是建立普通用户之后也发现，坑！太坑了！不输入sudo执行命令，很多命令都执行不了，而每次执行sudo命令时，都要输入当前用户密码，这就让我特别难受了。自认为密码长了就会安全，所以我给普通用户设置了一个15位长的密码，这每次执行命令的时候输一遍，谁顶得住，太麻烦了呀，于是想办法解决，功夫不负有心人，这个方法被我找到了，哈哈哈。。。
+  行，闲话扯皮完毕，下面进入正题。。。</p>
+
+<h2 id="linux更改用户名">linux更改用户名</h2>
+<h3 id="一修改sudoer文件">（一）修改sudoer文件</h3>
+<p>  我们为自己要改的名字提前赋予较高的权限，防止修改下面文件的过程中出现权限不足。（注：之前这个ubuntu用户名不是listone，我平时自己的代号是listone，所以我已经改过来了，当时修改的时候没有截图，那我就假设有一个aaa用户，我要将aaa用户名改为listone用户名）
+<img src="http://wx1.sinaimg.cn/large/007cEDWily1g50kqajt7uj30bl01mjrb.jpg" alt="" />
+<img src="http://wx3.sinaimg.cn/large/007cEDWily1g50kpo69n7j30ak027glu.jpg" alt="" /></p>
+
+<h3 id="二修改shadow文件">（二）修改shadow文件</h3>
+<p>  这个文件中存储与登陆有关的内容格式如下：</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>username: passwd: lastchg: min: max: warn: inactive: expire: flag   
+登录名:加密口令:最后一次修改时间:最小时间间隔:最大时间间隔:警告时间:不活动时间:失效时间:标志
+</code></pre></div></div>
+<p><img src="http://wx2.sinaimg.cn/large/007cEDWily1g50kplsn5oj30au018dg1.jpg" alt="" />
+  我们需要将登录名更改：
+<img src="http://wx4.sinaimg.cn/large/007cEDWily1g50kpjko9vj30bs017wep.jpg" alt="" /></p>
+
+<h3 id="三开始修改目录">（三）开始修改目录</h3>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g50kph2bu6j30b101cjrb.jpg" alt="" />
+  用户开始目录中，包含用户相关配置信息，我们要将二者相匹配</p>
+
+<h3 id="四修改passwd文件">（四）修改passwd文件</h3>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g50kpe77llj30bm01gdfs.jpg" alt="" />
+  passwd文件内容格式如下：</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>用户名: 密码 : uid  : gid :用户描述：主目录：登陆shell
+</code></pre></div></div>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g50koxxp63j30c601maad.jpg" alt="" />
+  我们将用户名，以及主目录等等改为新的名字
+<img src="http://wx1.sinaimg.cn/large/007cEDWily1g50kpbx41rj30dx01bdg8.jpg" alt="" /></p>
+<h3 id="五如果还想修改原来用户下文件所属的组">（五）如果还想修改原来用户下文件所属的组：</h3>
+<p>  可以将 /etc/group 文件中的旧用户组，改为新的用户组</p>
+<h3 id="六最后再次进入etcsudoer-文件将就用户名aaa-删除">（六）最后，再次进入/etc/sudoer 文件，将就用户名aaa 删除</h3>
+<p><img src="http://wx1.sinaimg.cn/large/007cEDWily1g50kovmzzhj30b001r74g.jpg" alt="" />
+  最后，重启之后就可以看到用户名已经更改。</p>
+
+<h2 id="sudo用户小技巧">sudo用户小技巧</h2>
+<p>  使用sudo用户时，可以修改sudoer文件，认真的同学，应该在上面已经发现了技巧，现在，在这里重提一下。
+<img src="http://wx2.sinaimg.cn/large/007cEDWily1g50kopephcj309g01w74j.jpg" alt="" />
+  就是在listone用户那里，加一个NOPASSWD就行了，比起修改用户名来说，很简单了。</p>
+
+<h2 id="总结">总结</h2>
+<p>  linux零碎的知识很多，在学习过程中，记录是很重要的，以前学到的东西，因为没有记录，当要用到的时候又给忘掉了，还要重新找资料，所以不如我们平时学习的时候多记笔记，多反思。
+  嗯，就是这样，这次分享就到这里了。</p>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/07/14/MSF%E5%86%85%E7%BD%91%E6%8E%A2%E6%B5%8B%E5%8F%8Anmap%E6%96%B0%E5%AD%A6%E7%94%A8%E6%B3%95/" data-toggle="tooltip" data-placement="top" title="MSF内网探测及nmap新学用法">
+                        Previous<br>
+                        <span>MSF内网探测及nmap新学用法</span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0538337d52906a683cf0',
+                    clientSecret: 'bbc90075aaa027f00b58a32f3e021f94efbd87d7',
+                    repo: 'cookiexss.github.io',
+                    owner: 'cookiexss',
+                    admin: ['cookiexss'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Notes" title="Notes" rel="4">
+                                    Notes
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="https://github.com/cookiexss">cookiexss</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/cookiexss">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Listone Blog 2019
+                    <br>
+                    Theme on <a href="https://github.com/cookiexss/cookiexss.github.io.git">GitHub</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=cookiexss&repo=cookiexss.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

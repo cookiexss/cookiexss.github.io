@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Listone Blog</title>
+    <description>Learning day by day, progressing day by day!</description>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Tue, 16 Jul 2019 09:38:42 +0800</pubDate>
+    <lastBuildDate>Tue, 16 Jul 2019 09:38:42 +0800</lastBuildDate>
+    <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>linux更改用户名以及sudo用户小技巧</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;本文首发于博主公众号LISTONE，欢迎关注哦！&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+&lt;p&gt;  &lt;strong&gt;一、&lt;/strong&gt; 历时几天，终于下完了一个3.4G大小的一个ubuntu虚拟机压缩包（百度云限速，本人穷，买不起会员。。。），这个虚拟机是前人搭建好的一个pwn做题环境，它的默认名字是他平时的代号，这个就让我很不舒服了，虽然是现成的，但谁不想看着自己的名字不是，所以一气之下，决定删除用户，但是转念一想，他就是在这个用户下配置的环境，我删了，那配的环境不也就没有了，所以我就想着改一下用户名，在这期间有很多要改的地方，如果不小心操作错误，很有可能会无法登录系统，所以我在这里记录一下我的解决方法，免得以后踩坑。。。&lt;br /&gt;
+  &lt;strong&gt;二、&lt;/strong&gt; 我的主机操作系统被我换成kali了，当初想着root用户不安全，遂建立了一个普通用户，可是建立普通用户之后也发现，坑！太坑了！不输入sudo执行命令，很多命令都执行不了，而每次执行sudo命令时，都要输入当前用户密码，这就让我特别难受了。自认为密码长了就会安全，所以我给普通用户设置了一个15位长的密码，这每次执行命令的时候输一遍，谁顶得住，太麻烦了呀，于是想办法解决，功夫不负有心人，这个方法被我找到了，哈哈哈。。。
+  行，闲话扯皮完毕，下面进入正题。。。&lt;/p&gt;
+
+&lt;h2 id=&quot;linux更改用户名&quot;&gt;linux更改用户名&lt;/h2&gt;
+&lt;h3 id=&quot;一修改sudoer文件&quot;&gt;（一）修改sudoer文件&lt;/h3&gt;
+&lt;p&gt;  我们为自己要改的名字提前赋予较高的权限，防止修改下面文件的过程中出现权限不足。（注：之前这个ubuntu用户名不是listone，我平时自己的代号是listone，所以我已经改过来了，当时修改的时候没有截图，那我就假设有一个aaa用户，我要将aaa用户名改为listone用户名）
+&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g50kqajt7uj30bl01mjrb.jpg&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g50kpo69n7j30ak027glu.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;二修改shadow文件&quot;&gt;（二）修改shadow文件&lt;/h3&gt;
+&lt;p&gt;  这个文件中存储与登陆有关的内容格式如下：&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;username: passwd: lastchg: min: max: warn: inactive: expire: flag   
+登录名:加密口令:最后一次修改时间:最小时间间隔:最大时间间隔:警告时间:不活动时间:失效时间:标志
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g50kplsn5oj30au018dg1.jpg&quot; alt=&quot;&quot; /&gt;
+  我们需要将登录名更改：
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g50kpjko9vj30bs017wep.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;三开始修改目录&quot;&gt;（三）开始修改目录&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g50kph2bu6j30b101cjrb.jpg&quot; alt=&quot;&quot; /&gt;
+  用户开始目录中，包含用户相关配置信息，我们要将二者相匹配&lt;/p&gt;
+
+&lt;h3 id=&quot;四修改passwd文件&quot;&gt;（四）修改passwd文件&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g50kpe77llj30bm01gdfs.jpg&quot; alt=&quot;&quot; /&gt;
+  passwd文件内容格式如下：&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;用户名: 密码 : uid  : gid :用户描述：主目录：登陆shell
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g50koxxp63j30c601maad.jpg&quot; alt=&quot;&quot; /&gt;
+  我们将用户名，以及主目录等等改为新的名字
+&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g50kpbx41rj30dx01bdg8.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;五如果还想修改原来用户下文件所属的组&quot;&gt;（五）如果还想修改原来用户下文件所属的组：&lt;/h3&gt;
+&lt;p&gt;  可以将 /etc/group 文件中的旧用户组，改为新的用户组&lt;/p&gt;
+&lt;h3 id=&quot;六最后再次进入etcsudoer-文件将就用户名aaa-删除&quot;&gt;（六）最后，再次进入/etc/sudoer 文件，将就用户名aaa 删除&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g50kovmzzhj30b001r74g.jpg&quot; alt=&quot;&quot; /&gt;
+  最后，重启之后就可以看到用户名已经更改。&lt;/p&gt;
+
+&lt;h2 id=&quot;sudo用户小技巧&quot;&gt;sudo用户小技巧&lt;/h2&gt;
+&lt;p&gt;  使用sudo用户时，可以修改sudoer文件，认真的同学，应该在上面已经发现了技巧，现在，在这里重提一下。
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g50kopephcj309g01w74j.jpg&quot; alt=&quot;&quot; /&gt;
+  就是在listone用户那里，加一个NOPASSWD就行了，比起修改用户名来说，很简单了。&lt;/p&gt;
+
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
+&lt;p&gt;  linux零碎的知识很多，在学习过程中，记录是很重要的，以前学到的东西，因为没有记录，当要用到的时候又给忘掉了，还要重新找资料，所以不如我们平时学习的时候多记笔记，多反思。
+  嗯，就是这样，这次分享就到这里了。&lt;/p&gt;
+</description>
+        <pubDate>Mon, 15 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/15/linux%E6%9B%B4%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E4%BB%A5%E5%8F%8Asudo%E7%94%A8%E6%88%B7%E5%B0%8F%E6%8A%80%E5%B7%A7/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/15/linux%E6%9B%B4%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E4%BB%A5%E5%8F%8Asudo%E7%94%A8%E6%88%B7%E5%B0%8F%E6%8A%80%E5%B7%A7/</guid>
+        
+        <category>linux</category>
+        
+        <category>Notes</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>MSF内网探测及nmap新学用法</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;本文首发于博主公众号LISTONE，欢迎关注哦！&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;线下赛awd比赛的时候，有时候主办方不提供每个参赛队的IP地址，所以，我们需要自己去发现主机。&lt;/p&gt;
+
+&lt;p&gt;之前我学过nmap，好久没用了，今天用的时候，尴尬的发现自己忘了好多nmap的命令了，看来知识需要多记、多积累，记忆真的敌不过时间。&lt;/p&gt;
+
+&lt;p&gt;然后，我就发现了msf真香，简单易用，关键速度还很快，现在简单记录一下如何使用msf进行内网探测，免得过几天就忘了。。。&lt;/p&gt;
+
+&lt;h2 id=&quot;msf内网探测&quot;&gt;msf内网探测&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo msfconsole&lt;/code&gt; 进入Metasploit Framework
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g4zn45ue9cj30ek01tt96.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;search arp_sweep&lt;/code&gt; 搜索探测模块
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g4zn4ddjssj30qc05gwf4.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;use auxiliary/scanner/discovery/arp_sweep&lt;/code&gt; 使用该模块&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;show options&lt;/code&gt; 查看设置参数
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g4zn4b2i3fj30nw07hwfu.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;set rhosts 172.20.101.101-172.20.130.103&lt;/code&gt; 设置目标ip地址段也可&lt;code class=&quot;highlighter-rouge&quot;&gt;172.20.102.0/24&lt;/code&gt;&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;set threads 100&lt;/code&gt; 设置线程数，线程数高，速度快，线程数小，更隐蔽
+&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g4zn48cvk1j30oi02cmxp.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;run&lt;/code&gt;设置完成，输入run进行探测&lt;/p&gt;
+
+&lt;h2 id=&quot;nmap新学用法&quot;&gt;nmap新学用法&lt;/h2&gt;
+&lt;p&gt;也算是回顾吧！毕竟我大一的时候还是系统的学过nmap的（只是好久不用，忘了，嘿嘿）。。。&lt;/p&gt;
+
+&lt;p&gt;今天着重记的就是 &lt;code class=&quot;highlighter-rouge&quot;&gt;-A&lt;/code&gt; 参数了。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;nmap  -A  192.168.205.31&lt;/code&gt;  这个命令不仅列出目标主机开放的端口号，对应的服务，还较为详细的列出了服务的版本，其支持的命令,到达目标主机的每一跳路由等信息。在进行完全扫描时，扫描机与目标主机之间存在大量的数据流量交互，扫描时长随之增加。完全扫描不仅仅是TCP协议上的通信交互，还有例如ICMP、HTTP、NBSS、TDS、POP等等协议的交互，这些协议的交互是因为在完全扫描开始时首先对目标主机的开放端口进行了确认，之后再根据不同对应的不同服务进行服务版本信息探测、账户信息等信息的探测！&lt;/p&gt;
+
+&lt;p&gt;截图就不截了吧，总之记得，很好用就是了。&lt;/p&gt;
+
+&lt;p&gt;不过在实际环境中，用这个参数，进攻性就很强了，我是在比赛里使用的。所以也就没啥了，实际环境用，还是要慎重一些的。&lt;/p&gt;
+
+&lt;p&gt;唉，算了，还是截个图吧，没图觉得不完整。。。
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g4zn42grlvj30oq0m6jwg.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sun, 14 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/14/MSF%E5%86%85%E7%BD%91%E6%8E%A2%E6%B5%8B%E5%8F%8Anmap%E6%96%B0%E5%AD%A6%E7%94%A8%E6%B3%95/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/14/MSF%E5%86%85%E7%BD%91%E6%8E%A2%E6%B5%8B%E5%8F%8Anmap%E6%96%B0%E5%AD%A6%E7%94%A8%E6%B3%95/</guid>
+        
+        <category>MSF</category>
+        
+        <category>Nmap</category>
+        
+        <category>内网探测</category>
+        
+        <category>Notes</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>SSH命令行传输文件到远程服务器</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;博主电脑系统一直用的都是kali，在linux系统中没有windows系统中可以用的Xshell工具和Xftp工具，所以我在平时用Linux自带的ssh连接上服务器之后，传输文件变成
+了一个非常让人头疼的问题，最开始我使用nc来进行文件传输，后来觉得很麻烦，就想着找一个新的工具来替代nc，无意中就发现了scp这个工具，在这篇博客里简单记录
+一下scp的用法。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;使用方式如下&quot;&gt;使用方式如下：&lt;/h2&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;上传本地文件到服务器&quot;&gt;上传本地文件到服务器&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;scp /path/filename username@servername:/path/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;例如scp /var/www/test.php listone@192.168.205.131:/var/www/ 把本机/var/www/目录下的test.php文件上传到192.168.205.131这台服务器上的/var/www/目录中&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;从服务器上下载文件&quot;&gt;从服务器上下载文件&lt;/h3&gt;
+&lt;p&gt;下载文件我们经常使用wget，但是如果没有http服务，如何从服务器上下载文件呢？&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;scp username@servername:/path/filename /var/www/local_dir（本地目录）
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;例如scp listone@192.168.205.131:/var/www/test.txt 把192.168.205.131上的/var/www/test.txt 的文件下载到/var/www/local_dir（本地目录）&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;从服务器下载整个目录&quot;&gt;从服务器下载整个目录&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;scp -r username@servername:/var/www/remote_dir/（远程目录） /var/www/local_dir（本地目录）
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;例如:scp -r listone@192.168.205.131:/var/www/test /var/www/&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;上传目录到服务器&quot;&gt;上传目录到服务器&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;scp -r local_dir username@servername:remote_dir
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;例如：scp -r test listone@192.168.205.131:/var/www/ 把当前目录下的test目录上传到服务器的/var/www/ 目录&lt;/p&gt;
+</description>
+        <pubDate>Tue, 12 Feb 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/02/12/SSH%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6%E5%88%B0%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/02/12/SSH%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6%E5%88%B0%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8/</guid>
+        
+        <category>SSH</category>
+        
+        <category>SCP</category>
+        
+        <category>Notes</category>
+        
+        <category>文件传输</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>快速配置zsh</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;比较水的 Personal Notes&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;查看你的系统有几种shell&quot;&gt;查看你的系统有几种shell&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cat /etc/shells
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;显示&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/bin/bash
+/bin/csh
+/bin/ksh
+/bin/sh
+/bin/tcsh
+/bin/zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;安装-oh-my-zsh&quot;&gt;安装 oh my zsh&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;重新打开终端，输入&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;即可切换终端，并且发现 oh my zsh 已经帮我们配置好 zsh 了&lt;/p&gt;
+
+&lt;h2 id=&quot;修改主题&quot;&gt;修改主题&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;open ~/.zshrc 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;修改 &lt;code class=&quot;highlighter-rouge&quot;&gt;ZSH_THEME=”robbyrussell”&lt;/code&gt;，主题在 ~/.oh-my-zsh/themes 目录下。
+修改为&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ZSH_THEME=&quot;kolo&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;可以&lt;a href=&quot;https://github.com/robbyrussell/oh-my-zsh/wiki/themes&quot;&gt;参照这里&lt;/a&gt;进行选择.&lt;/p&gt;
+
+&lt;h2 id=&quot;设置为默认shell&quot;&gt;设置为默认shell&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;chsh -s /bin/zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;添加自定义命令&quot;&gt;添加自定义命令&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;open ~/.zshrc 添加显示隐藏文件的快捷命令
+
+alias fd='defaults write com.apple.finder AppleShowAllFiles -boolean true ; killall Finder'
+alias fh='defaults write com.apple.finder AppleShowAllFiles -boolean false ; killall Finder'
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</description>
+        <pubDate>Thu, 07 Feb 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/02/07/%E5%BF%AB%E9%80%9F%E9%85%8D%E7%BD%AEzsh/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/02/07/%E5%BF%AB%E9%80%9F%E9%85%8D%E7%BD%AEzsh/</guid>
+        
+        <category>终端</category>
+        
+        <category>zsh</category>
+        
+        <category>Notes</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>博客首发</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;第一次搭建自己的博客，就简单的立一些flag吧！&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;回望过去&quot;&gt;回望过去&lt;/h2&gt;
+&lt;p&gt;上了大学之后，自己的写作水平一直在退步。所以就想着借着博客来提高一下自己的写作能力。2018年已经过去了，过去的一年里，收获很多，但是呢，我觉得最大的收获
+就是无意间找到了一个女朋友，哈哈哈～～作为一个学IT的
+人来说，找女朋友太难了，在遇见她之前，我都做好大学不找女朋友的打算了，可是在遇见她之后，真是被啪啪打脸，完全克制不住对她的喜爱，觉得世界上怎么会有这么
+可爱的人儿呢Ｏ（∩＿∩）Ｏ哈哈～。学习成绩嘛，当然也是受了一些影响的，刚看到成绩时，打击还蛮大的，之后自己想了想，我都找到这么好的人儿了，还奢求那么多干嘛，
+下学期再努力呗。&lt;/p&gt;
+
+&lt;h2 id=&quot;计划一下未来&quot;&gt;计划一下未来&lt;/h2&gt;
+&lt;p&gt;就不计划太远的事情了，先把眼下的事情都处理一下，最重要的应该就是要考的信息安全工程师认证考试了吧，据说这个还蛮难考的，离考试时间越来越近了，五月份就开始了，
+但是感觉自己准备的还不好，看见模拟题就是两眼一抹黑，要加紧步伐去准备了。还有英语四级，单词还没背的我对这个发憷的不行，不敢想了，还是做模拟卷子吧。当然学生的天职还是学习，好好学习，把去年没学好的都给补上来。最后也是最重要的，
+就是要对那个小傻子更好一些，多陪陪那个小傻子Ｏ（∩＿∩）Ｏ哈哈哈～&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 07 Feb 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/02/07/%E5%8D%9A%E5%AE%A2%E9%A6%96%E5%8F%91/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/02/07/%E5%8D%9A%E5%AE%A2%E9%A6%96%E5%8F%91/</guid>
+        
+        <category>生活</category>
+        
+        <category>感想</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>
