@@ -5,9 +5,81 @@
     <description>Learning day by day, progressing day by day!</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 17 Jul 2019 19:13:23 +0800</pubDate>
-    <lastBuildDate>Wed, 17 Jul 2019 19:13:23 +0800</lastBuildDate>
+    <pubDate>Fri, 19 Jul 2019 00:46:02 +0800</pubDate>
+    <lastBuildDate>Fri, 19 Jul 2019 00:46:02 +0800</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>调试破解TraceMe</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;本文首发于博主公众号LISTONE，欢迎关注哦！&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;调试破解traceme&quot;&gt;调试破解TraceMe&lt;/h1&gt;
+
+&lt;h2 id=&quot;一&quot;&gt;（一）&lt;/h2&gt;
+&lt;p&gt;运行程序，界面为：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g54glf7jh1j309405o74c.jpg&quot; alt=&quot;TraceMe01&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们随便输入点东西观察一下，如果输入错误会弹出错误框。
+&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g54glpab4wj309405o0su.jpg&quot; alt=&quot;TraceMe01a&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;观察一下程序，有两个输入框，这个在后面调试会用到。&lt;/p&gt;
+
+&lt;h2 id=&quot;二&quot;&gt;（二）&lt;/h2&gt;
+&lt;p&gt;打开要调试的程序，光标停在004013A0h处，004013A0h处为程序的入口点（EntryPoint），如下图&lt;br /&gt;
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g54glsa0ekj30et02rwef.jpg&quot; alt=&quot;TraceMe02&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在调试程序的时候，合理运用断点进行调试，可以在很大程度上加快程序调试的速度。前面观察，这个程序有两个输入框，那么有输入，程序必然需要从输入框中读取字符，而读取字符通常使用使用的API是GetDlgItemText或者GetWindowText函数，也可以发送消息直接获取文本框中的文本。&lt;br /&gt;
+在一般情况下，我们是没有办法直接知道程序用了什么函数来处理字符，所以需要我们多进行尝试。&lt;/p&gt;
+
+&lt;p&gt;我们在OllyDbg中下一个断点，有快捷键Ctrl+G，可以打开一个跟随表达式窗口，如图，输入GetDlgItemTextA，回车跳转。&lt;br /&gt;
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g54glvjdazj3095030q2u.jpg&quot; alt=&quot;TraceMe03&quot; /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;注意：OD对大小写敏感，所以大小写不能写错。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;这时会跳转到74FF6BCEh，GetDlgItemTextA函数的入口点。在这里按一下F2可以下一个断点。&lt;br /&gt;
+&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g54glxzrjxj30hn03v3yi.jpg&quot; alt=&quot;TraceMe04&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;然后让程序跑起来输入数据之后，它会断在我们刚才下断点的地方，之后我们单步执行（按F8），刚才下断点的地方会执行两次，因为我们的程序有两个输入框。一般API函数都服从__stdcall调用约定，即函数入口参数按从左到右的顺序入栈，由被调用者清理栈中的参数，返回值放在eax寄存器中。OD真的很强大，它把GetDlgItemTextA函数的参数识别并列在右边，如下图。&lt;br /&gt;
+&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g54gm0p60sj30pm05i74l.jpg&quot; alt=&quot;TraceMe05&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;push edx&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;push eax&lt;/code&gt;将我输入的listone和123123入栈。在栈空间栈顶可以看到输入的数据。&lt;br /&gt;
+&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g54gm3g8ekj30rv03xdg4.jpg&quot; alt=&quot;TraceMe06&quot; /&gt;
+&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g54gm67sw2j309d03ldfs.jpg&quot; alt=&quot;TraceMe07&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;继续向下执行可以看到这里有一个判断，eax=0表示注册失败，eax=1表示注册成功，下面的跳转语句，若不跳转表示成功。&lt;br /&gt;
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g54gm93n3fj30h60460st.jpg&quot; alt=&quot;TraceMe08&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;三&quot;&gt;（三）&lt;/h2&gt;
+&lt;p&gt;所以，我们可以让其跳转失效，有两种方法，第一种是将标志寄存器zf标志位由1变为0就可以了，但是这种方法有个问题就是没有办法保存，下次运行就会失效，第二种方法是将跳转语句用&lt;code class=&quot;highlighter-rouge&quot;&gt;nop&lt;/code&gt;指令填充，然后保存，所以第二种方法就显得人性化一些，可以保存破解结果，不需要重复破解，下面演示一下第二种方法：&lt;br /&gt;
+将跳转指令用nop填充：&lt;br /&gt;
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g54gn3g3htj30lw095adb.jpg&quot; alt=&quot;TraceMe09&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;鼠标右键选择复制到可执行文件==&amp;gt;所有修改&lt;br /&gt;
+&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g54gn5c7t5j30c403a3yn.jpg&quot; alt=&quot;TraceMe10&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在弹出的窗口中鼠标右键后选择保存文件
+&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g54gn7kdhpj30e307m74u.jpg&quot; alt=&quot;TraceMe11&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;四&quot;&gt;（四）&lt;/h2&gt;
+&lt;p&gt;之后运行这个保存的文件，可以看到破解成功了&lt;br /&gt;
+&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g54gn9rxigj309405oq31.jpg&quot; alt=&quot;TraceMe12&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Fri, 19 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/19/%E8%B0%83%E8%AF%95%E7%A0%B4%E8%A7%A3TraceMe/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/19/%E8%B0%83%E8%AF%95%E7%A0%B4%E8%A7%A3TraceMe/</guid>
+        
+        <category>逆向</category>
+        
+        <category>破解</category>
+        
+        <category>Notes</category>
+        
+        
+      </item>
     
       <item>
         <title>linux更改用户名以及sudo用户小技巧</title>
