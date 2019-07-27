@@ -7,7 +7,8 @@ author:     LISTONE
 header-img: img/post-bg-digital-native.jpg
 catalog: true
 tags:
-    - linux
+    - CTF
+    - PWN
     - Notes
 ---
 >本文首发于博主公众号LISTONE，欢迎关注哦！
@@ -62,8 +63,8 @@ strings -tx libc-2.23.so|grep "/bin/sh"
 所以，我们可以写出利用脚本：
 
 ```
-#!/usr/bin/env/python
-# coding=utf-8  
+#!/usr/bin/env/python 
+# coding=utf-8 
 from pwn import *  
 #context.log_level = "debug"  
 env = os.environ  
