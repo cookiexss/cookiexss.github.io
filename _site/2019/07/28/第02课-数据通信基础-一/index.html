@@ -10,7 +10,7 @@
     <meta name="keywords"  content=" LISTONE的博客, LISTONE, listone, python, c, 网络安全">
     <meta name="theme-color" content="#000000">
     
-    <title>快速配置zsh - LISTONE的博客 | Listone Blog</title>
+    <title>第02课：数据通信基础（一） - LISTONE的博客 | Listone Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -22,7 +22,7 @@
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/2019/02/07/%E5%BF%AB%E9%80%9F%E9%85%8D%E7%BD%AEzsh/">
+    <link rel="canonical" href="http://localhost:4000/2019/07/28/%E7%AC%AC02%E8%AF%BE-%E6%95%B0%E6%8D%AE%E9%80%9A%E4%BF%A1%E5%9F%BA%E7%A1%80-%E4%B8%80/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -175,19 +175,17 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#终端" title="终端">终端</a>
-                        
-                        <a class="tag" href="/tags/#zsh" title="zsh">zsh</a>
+                        <a class="tag" href="/tags/#网络工程师" title="网络工程师">网络工程师</a>
                         
                         <a class="tag" href="/tags/#Notes" title="Notes">Notes</a>
                         
                     </div>
-                    <h1>快速配置zsh</h1>
+                    <h1>第02课：数据通信基础（一）</h1>
                     
                     
-                    <h2 class="subheading">zsh的快速配置</h2>
+                    <h2 class="subheading">网络工程师认证考试课程学习笔记</h2>
                     
-                    <span class="meta">Posted by LISTONE on February 7, 2019</span>
+                    <span class="meta">Posted by LISTONE on July 28, 2019</span>
                 </div>
             </div>
         </div>
@@ -205,63 +203,119 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-				<blockquote>
-  <p>比较水的 Personal Notes</p>
-</blockquote>
+				<h1 id="第02课数据通信基础一">第02课：数据通信基础（一）</h1>
 
-<h2 id="查看你的系统有几种shell">查看你的系统有几种shell</h2>
+<h2 id="1-数据通信基本概念">1. 数据通信基本概念</h2>
+<ul>
+  <li><strong>考点01：</strong> 基本概念:信源、信道、信宿;数字信号、模拟信号;模拟通信、数字通信(信道中传送)。</li>
+</ul>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cat /etc/shells
-</code></pre></div></div>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g5fm16hj7cj30km08dmyp.jpg" alt="通信系统模型" /></p>
 
-<p>显示</p>
+<h2 id="2-数据通信计算">2. 数据通信计算</h2>
+<ul>
+  <li><strong>考点02：</strong> 模拟信道带宽计算:W=f2-f1,其中f1是低频,f2是高频。</li>
+</ul>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/bin/bash
-/bin/csh
-/bin/ksh
-/bin/sh
-/bin/tcsh
-/bin/zsh
-</code></pre></div></div>
+<p><img src="http://wx4.sinaimg.cn/large/007cEDWily1g5fm1e7ng0j30hv0a90ts.jpg" alt="模拟信道的带宽" /></p>
 
-<h2 id="安装-oh-my-zsh">安装 oh my zsh</h2>
+<ul>
+  <li><strong>考点03：</strong> 数字信道带宽计算:奈奎斯特定理(无噪声)</li>
+  <li>
+    <p>奈奎斯特定理: $B=2W$ ($W$为带宽、$B$码元速率、波特率)，信息量$n$(位)与码元种类$N$: $n= log_2{N}$ ，数据速率 $R= Bn = Blog_2{N} = 2Wlog_2{N}$</p>
+  </li>
+  <li><strong>考点04：</strong> 数字信道带宽计算:香农定理(有噪声)</li>
+  <li>香农定理：$C = Wlog_2{(1+\frac{S}{N})}$</li>
+  <li>其中,$C$为数据速率,$W$为信道带宽,$S$为信号的平均功率,$N$为噪声平均功率,$S/N$为信噪比。</li>
+  <li>
+    <p>信噪比和分贝数:$dB=10lg(S/N)$</p>
+  </li>
+  <li><strong>考点05：</strong> 计算汇总:模拟带宽、数字带宽(1、无噪声:奈奎斯特定理,2、有噪声:香农定理</li>
+</ul>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
-cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-</code></pre></div></div>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g5fm1l3sbnj30kx0avjtu.jpg" alt="信道的数据速率计算公式" /></p>
 
-<p>重新打开终端，输入</p>
+<ul>
+  <li><strong>考点06：</strong> 常用考试数据：</li>
+  <li>单位换算：通信换算进率1000,如1G=1000M，存储换算进率1024,如1G=1024M</li>
+  <li>信道延迟：电缆信道延迟200m/us (200km/ms,200000km/s)</li>
+  <li>卫星信道延迟：270ms</li>
+</ul>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>zsh
-</code></pre></div></div>
+<h2 id="通信传输介质">通信传输介质</h2>
+<ul>
+  <li><strong>考点07：</strong> 双绞线:分为非屏蔽双绞线UTP,屏蔽双绞线STP。100米可以达到100Mb/s。</li>
+</ul>
 
-<p>即可切换终端，并且发现 oh my zsh 已经帮我们配置好 zsh 了</p>
+<p><img src="http://wx2.sinaimg.cn/large/007cEDWily1g5fm1rmsn5j30kf0aa40o.jpg" alt="各种规格的双绞线" /><br />
+<img src="http://wx4.sinaimg.cn/large/007cEDWily1g5fm1yia6lj30l80cm77k.jpg" alt="双绞线水晶头" />
+<img src="http://wx1.sinaimg.cn/large/007cEDWily1g5fm27yqrij30lc0ccdkg.jpg" alt="交叉线和直通线适用范围" /></p>
 
-<h2 id="修改主题">修改主题</h2>
+<ul>
+  <li><strong>考点08：</strong> 同轴电缆:分为粗同轴电缆、细同轴电缆。传送距离长,信号稳定,常用语电视、监视系统,音响设备传送音、视频信号。</li>
+</ul>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>open ~/.zshrc 
-</code></pre></div></div>
+<p><img src="http://wx1.sinaimg.cn/large/007cEDWily1g5fm2er47wj30gw07hmzq.jpg" alt="同轴电缆" /></p>
 
-<p>修改 <code class="highlighter-rouge">ZSH_THEME=”robbyrussell”</code>，主题在 ~/.oh-my-zsh/themes 目录下。
-修改为</p>
+<ul>
+  <li><strong>考点09：</strong> 光纤(光缆):分为单模光纤SMF(左图)、多模光纤MMF(右图)。</li>
+</ul>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ZSH_THEME="kolo"
-</code></pre></div></div>
+<p><img src="http://wx4.sinaimg.cn/large/007cEDWily1g5fm2kjx8hj30ks099n0c.jpg" alt="光纤" /></p>
 
-<p>可以<a href="https://github.com/robbyrussell/oh-my-zsh/wiki/themes">参照这里</a>进行选择.</p>
+<ul>
+  <li><strong>考点10：</strong> 区别对比:单(身)美女的眼光:高贵细远</li>
+</ul>
 
-<h2 id="设置为默认shell">设置为默认shell</h2>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g5fm2t9wnnj30ln09n0w3.jpg" alt="单模光纤与多模光纤的比较" /></p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chsh -s /bin/zsh
-</code></pre></div></div>
+<ul>
+  <li><strong>考点11：</strong> 无线信道:分为无线电波和红外光波。</li>
+</ul>
 
-<h2 id="添加自定义命令">添加自定义命令</h2>
+<p><img src="http://wx3.sinaimg.cn/large/007cEDWily1g5fm3izytqj30k90ac417.jpg" alt="无线信道" /></p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>open ~/.zshrc 添加显示隐藏文件的快捷命令
+<h2 id="4-数据调制与编码">4. 数据调制与编码</h2>
 
-alias fd='defaults write com.apple.finder AppleShowAllFiles -boolean true ; killall Finder'
-alias fh='defaults write com.apple.finder AppleShowAllFiles -boolean false ; killall Finder'
-</code></pre></div></div>
+<ul>
+  <li><strong>考点12：</strong> 模拟信道调制:分为调幅ASK、调频FSK、调相PSK、正交调幅QAM。</li>
+</ul>
+
+<p><img src="http://wx2.sinaimg.cn/large/007cEDWily1g5fm3reawfj30l30a2djd.jpg" alt="三种调制方式" /></p>
+
+<ul>
+  <li><strong>考点13：</strong> 数字信道编码:分为采样(2倍)、量化(等级)、编码(二进制)三个步骤。</li>
+</ul>
+
+<p><img src="http://wx1.sinaimg.cn/large/007cEDWily1g5fm3xbbdhj30lg08tae2.jpg" alt="信道编码" /></p>
+
+<ul>
+  <li><strong>考点14：</strong> 调制技术与码元数:$n=log_2{N}$</li>
+</ul>
+
+<p><img src="http://wx4.sinaimg.cn/large/007cEDWily1g5fm44w6knj30km0apmzf.jpg" alt="调制技术与码元数" /></p>
+
+<ul>
+  <li><strong>考点15：</strong> 极性编码:分为单极性、极性、双极性。</li>
+</ul>
+
+<p><img src="http://wx1.sinaimg.cn/large/007cEDWily1g5fm4fzpw4j30k509tdix.jpg" alt="极性编码" /></p>
+
+<ul>
+  <li><strong>考点16：</strong> 归零性编码:归零码、不归零码(遇1翻转)。双相码(电平翻转)。</li>
+</ul>
+
+<p><img src="http://wx1.sinaimg.cn/large/007cEDWily1g5fm4n4g9rj30jn09iwhn.jpg" alt="归零性编码" /></p>
+
+<ul>
+  <li><strong>考点17：</strong> 曼码和差分曼码:曼码降0升1(降升0)效率50%;差分曼码折0平1,效率50%。</li>
+</ul>
+
+<p><img src="http://wx2.sinaimg.cn/large/007cEDWily1g5fm4se70mj30kt084gof.jpg" alt="曼彻斯特" /></p>
+
+<ul>
+  <li><strong>考点18：</strong> 各种编码效率：4B/5B效率80%,用于百兆以太网；8B/10B效率80%,用于千兆以太网；64B/66B效率97%,用于万兆以太网；曼码和差分曼码效率50%,用于以太网。</li>
+</ul>
 
 
                 <hr style="visibility: hidden;">
@@ -269,19 +323,12 @@ alias fh='defaults write com.apple.finder AppleShowAllFiles -boolean false ; kil
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2019/02/07/%E5%8D%9A%E5%AE%A2%E9%A6%96%E5%8F%91/" data-toggle="tooltip" data-placement="top" title="博客首发">
+                        <a href="/2019/07/27/%E7%AC%AC01%E8%AF%BE-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E6%A6%82%E8%AE%BA/" data-toggle="tooltip" data-placement="top" title="第01课：计算机网络概论">
                         Previous<br>
-                        <span>博客首发</span>
+                        <span>第01课：计算机网络概论</span>
                         </a>
                     </li>
                     
-                    
-                    <li class="next">
-                        <a href="/2019/02/12/SSH%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6%E5%88%B0%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-toggle="tooltip" data-placement="top" title="SSH命令行传输文件到远程服务器">
-                        Next<br>
-                        <span>SSH命令行传输文件到远程服务器</span>
-                        </a>
-                    </li>
                     
                 </ul>
 

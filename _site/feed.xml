@@ -5,9 +5,195 @@
     <description>Learning day by day, progressing day by day!</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 26 Jul 2019 23:52:47 +0800</pubDate>
-    <lastBuildDate>Fri, 26 Jul 2019 23:52:47 +0800</lastBuildDate>
+    <pubDate>Sun, 28 Jul 2019 16:57:35 +0800</pubDate>
+    <lastBuildDate>Sun, 28 Jul 2019 16:57:35 +0800</lastBuildDate>
     <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>第02课：数据通信基础（一）</title>
+        <description>&lt;h1 id=&quot;第02课数据通信基础一&quot;&gt;第02课：数据通信基础（一）&lt;/h1&gt;
+
+&lt;h2 id=&quot;1-数据通信基本概念&quot;&gt;1. 数据通信基本概念&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点01：&lt;/strong&gt; 基本概念:信源、信道、信宿;数字信号、模拟信号;模拟通信、数字通信(信道中传送)。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g5fm16hj7cj30km08dmyp.jpg&quot; alt=&quot;通信系统模型&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;2-数据通信计算&quot;&gt;2. 数据通信计算&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点02：&lt;/strong&gt; 模拟信道带宽计算:W=f2-f1,其中f1是低频,f2是高频。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5fm1e7ng0j30hv0a90ts.jpg&quot; alt=&quot;模拟信道的带宽&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点03：&lt;/strong&gt; 数字信道带宽计算:奈奎斯特定理(无噪声)&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;奈奎斯特定理: $B=2W$ ($W$为带宽、$B$码元速率、波特率)，信息量$n$(位)与码元种类$N$: $n= log_2{N}$ ，数据速率 $R= Bn = Blog_2{N} = 2Wlog_2{N}$&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;考点04：&lt;/strong&gt; 数字信道带宽计算:香农定理(有噪声)&lt;/li&gt;
+  &lt;li&gt;香农定理：$C = Wlog_2{(1+\frac{S}{N})}$&lt;/li&gt;
+  &lt;li&gt;其中,$C$为数据速率,$W$为信道带宽,$S$为信号的平均功率,$N$为噪声平均功率,$S/N$为信噪比。&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;信噪比和分贝数:$dB=10lg(S/N)$&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;考点05：&lt;/strong&gt; 计算汇总:模拟带宽、数字带宽(1、无噪声:奈奎斯特定理,2、有噪声:香农定理&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g5fm1l3sbnj30kx0avjtu.jpg&quot; alt=&quot;信道的数据速率计算公式&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点06：&lt;/strong&gt; 常用考试数据：&lt;/li&gt;
+  &lt;li&gt;单位换算：通信换算进率1000,如1G=1000M，存储换算进率1024,如1G=1024M&lt;/li&gt;
+  &lt;li&gt;信道延迟：电缆信道延迟200m/us (200km/ms,200000km/s)&lt;/li&gt;
+  &lt;li&gt;卫星信道延迟：270ms&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;通信传输介质&quot;&gt;通信传输介质&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点07：&lt;/strong&gt; 双绞线:分为非屏蔽双绞线UTP,屏蔽双绞线STP。100米可以达到100Mb/s。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g5fm1rmsn5j30kf0aa40o.jpg&quot; alt=&quot;各种规格的双绞线&quot; /&gt;&lt;br /&gt;
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5fm1yia6lj30l80cm77k.jpg&quot; alt=&quot;双绞线水晶头&quot; /&gt;
+&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g5fm27yqrij30lc0ccdkg.jpg&quot; alt=&quot;交叉线和直通线适用范围&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点08：&lt;/strong&gt; 同轴电缆:分为粗同轴电缆、细同轴电缆。传送距离长,信号稳定,常用语电视、监视系统,音响设备传送音、视频信号。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g5fm2er47wj30gw07hmzq.jpg&quot; alt=&quot;同轴电缆&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点09：&lt;/strong&gt; 光纤(光缆):分为单模光纤SMF(左图)、多模光纤MMF(右图)。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5fm2kjx8hj30ks099n0c.jpg&quot; alt=&quot;光纤&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点10：&lt;/strong&gt; 区别对比:单(身)美女的眼光:高贵细远&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g5fm2t9wnnj30ln09n0w3.jpg&quot; alt=&quot;单模光纤与多模光纤的比较&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点11：&lt;/strong&gt; 无线信道:分为无线电波和红外光波。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g5fm3izytqj30k90ac417.jpg&quot; alt=&quot;无线信道&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;4-数据调制与编码&quot;&gt;4. 数据调制与编码&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点12：&lt;/strong&gt; 模拟信道调制:分为调幅ASK、调频FSK、调相PSK、正交调幅QAM。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g5fm3reawfj30l30a2djd.jpg&quot; alt=&quot;三种调制方式&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点13：&lt;/strong&gt; 数字信道编码:分为采样(2倍)、量化(等级)、编码(二进制)三个步骤。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g5fm3xbbdhj30lg08tae2.jpg&quot; alt=&quot;信道编码&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点14：&lt;/strong&gt; 调制技术与码元数:$n=log_2{N}$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5fm44w6knj30km0apmzf.jpg&quot; alt=&quot;调制技术与码元数&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点15：&lt;/strong&gt; 极性编码:分为单极性、极性、双极性。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g5fm4fzpw4j30k509tdix.jpg&quot; alt=&quot;极性编码&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点16：&lt;/strong&gt; 归零性编码:归零码、不归零码(遇1翻转)。双相码(电平翻转)。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx1.sinaimg.cn/large/007cEDWily1g5fm4n4g9rj30jn09iwhn.jpg&quot; alt=&quot;归零性编码&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点17：&lt;/strong&gt; 曼码和差分曼码:曼码降0升1(降升0)效率50%;差分曼码折0平1,效率50%。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g5fm4se70mj30kt084gof.jpg&quot; alt=&quot;曼彻斯特&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点18：&lt;/strong&gt; 各种编码效率：4B/5B效率80%,用于百兆以太网；8B/10B效率80%,用于千兆以太网；64B/66B效率97%,用于万兆以太网；曼码和差分曼码效率50%,用于以太网。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sun, 28 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/28/%E7%AC%AC02%E8%AF%BE-%E6%95%B0%E6%8D%AE%E9%80%9A%E4%BF%A1%E5%9F%BA%E7%A1%80-%E4%B8%80/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/28/%E7%AC%AC02%E8%AF%BE-%E6%95%B0%E6%8D%AE%E9%80%9A%E4%BF%A1%E5%9F%BA%E7%A1%80-%E4%B8%80/</guid>
+        
+        <category>网络工程师</category>
+        
+        <category>Notes</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>第01课：计算机网络概论</title>
+        <description>&lt;h1 id=&quot;第01课计算机网络概论&quot;&gt;第01课：计算机网络概论&lt;/h1&gt;
+
+&lt;h2 id=&quot;1-计算机网络概念&quot;&gt;1. 计算机网络概念&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点01：&lt;/strong&gt; 计算机网络是通过通信线路和通信设备连接的许多的分散独立工作的计算机系统，遵从一定的协议用软件实现资源共享的系统。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;考点02：&lt;/strong&gt; 组成分为硬件、软件、协议三部分。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;考点03：&lt;/strong&gt; 协议扥为国际标准OSI/RM和公认标准TCP/IP。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-计算机网络分类&quot;&gt;2. 计算机网络分类&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;考点04：&lt;/strong&gt; （1）按分布范围：分为局域网、城域网、广域网。（2）按拓扑结构：分为星型、环型、树型等。（3）其他分类：公用网与专用网；通信网ISP与信息网ICP；校园网与企业网；骨干网与接入网；有线网与无线网等。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;3-网络体系结构ositcpip&quot;&gt;3. 网络体系结构OSI、TCP/IP&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;考点05：&lt;/strong&gt; OSI/RM(开放系统互联参考模型)七层是应用层、表示层、会话层、传输层、网络层、数据链路层、物理层。
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5etqkrmtrj30i80asafp.jpg&quot; alt=&quot;OSI七层协议结构&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;考点06：&lt;/strong&gt; TCP/IP(因特网传输协议)四层是应用层、传输层、互联网层、网络接口层。
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5etqp0og2j30db0brmzx.jpg&quot; alt=&quot;TCP/IP四层协议结构&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;考点07：&lt;/strong&gt; 七层OSI和四层TCP/IP协议对比
+&lt;img src=&quot;http://wx3.sinaimg.cn/large/007cEDWily1g5etqvmv7pj30il0afn1k.jpg&quot; alt=&quot;OSI模型与TCP/IP模型对比&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;考点08：&lt;/strong&gt; 七层协议各层实现功能如下表。
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5etr3grgaj30iw094qab.jpg&quot; alt=&quot;七层协议各层功能&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;考点09：&lt;/strong&gt; 网络数据传输整个过程——数据封装
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5etr9d8swj30hs09v44q.jpg&quot; alt=&quot;数据封装&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;网络数据传输整个过程——数据传输
+&lt;img src=&quot;http://wx2.sinaimg.cn/large/007cEDWily1g5etrcpjz6j30h609tgop.jpg&quot; alt=&quot;数据传输&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;网络数据传输整个过程——数据解封
+&lt;img src=&quot;http://wx4.sinaimg.cn/large/007cEDWily1g5etrhudwdj30i90a4dlw.jpg&quot; alt=&quot;数据解封&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sat, 27 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/27/%E7%AC%AC01%E8%AF%BE-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E6%A6%82%E8%AE%BA/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/27/%E7%AC%AC01%E8%AF%BE-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E6%A6%82%E8%AE%BA/</guid>
+        
+        <category>网络工程师</category>
+        
+        <category>Notes</category>
+        
+        
+      </item>
     
       <item>
         <title>实验吧ROPbaby(PWN)</title>
@@ -63,8 +249,8 @@
 
 &lt;p&gt;所以，我们可以写出利用脚本：&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;#!/usr/bin/env/python
-# coding=utf-8  
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;#!/usr/bin/env/python 
+# coding=utf-8 
 &lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pwn&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;  
 &lt;span class=&quot;c1&quot;&gt;#context.log_level = &quot;debug&quot;  
 &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;  
@@ -107,7 +293,9 @@
         <link>http://localhost:4000/2019/07/26/%E5%AE%9E%E9%AA%8C%E5%90%A7ROPbaby(PWN)/</link>
         <guid isPermaLink="true">http://localhost:4000/2019/07/26/%E5%AE%9E%E9%AA%8C%E5%90%A7ROPbaby(PWN)/</guid>
         
-        <category>linux</category>
+        <category>CTF</category>
+        
+        <category>PWN</category>
         
         <category>Notes</category>
         
@@ -177,7 +365,9 @@
         <link>http://localhost:4000/2019/07/19/%E8%B0%83%E8%AF%95%E7%A0%B4%E8%A7%A3TraceMe/</link>
         <guid isPermaLink="true">http://localhost:4000/2019/07/19/%E8%B0%83%E8%AF%95%E7%A0%B4%E8%A7%A3TraceMe/</guid>
         
-        <category>逆向</category>
+        <category>CTF</category>
+        
+        <category>Reverce</category>
         
         <category>破解</category>
         
